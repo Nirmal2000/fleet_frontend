@@ -322,14 +322,18 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
                         {mcp.config?.command} {mcp.config?.args?.join(' ')}
                       </p>
                     </div>
-                    <Switch
-                      checked={true}
-                      onCheckedChange={(checked) => {
-                        toggleMcp(mcp, checked)
-                      }}
-                      disabled={!sandboxCreated || loading[mcp.name]}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    {loading[mcp.name] ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    ) : (
+                      <Switch
+                        checked={true}
+                        onCheckedChange={(checked) => {
+                          toggleMcp(mcp, checked)
+                        }}
+                        disabled={!sandboxCreated}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -369,15 +373,19 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
                         {mcp.config.command} {mcp.config.args.join(' ')}
                       </p>
                     </div>
-                    <Switch
-                      checked={false}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          handleConfigureMcp(mcp)
-                        }
-                      }}
-                      disabled={!sandboxCreated || isLoading}
-                    />
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                    ) : (
+                      <Switch
+                        checked={false}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            handleConfigureMcp(mcp)
+                          }
+                        }}
+                        disabled={!sandboxCreated}
+                      />
+                    )}
                   </div>
                 </div>
               )

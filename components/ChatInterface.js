@@ -11,6 +11,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import MCPManager from '@/components/MCPManager'
 import ChatSessionList from '@/components/ChatSessionList'
+import SpinnerText from '@/components/SpinnerText'
 
 export default function ChatInterface({ session }) {
   const [messages, setMessages] = useState([])
@@ -21,6 +22,7 @@ export default function ChatInterface({ session }) {
   const [enabledMcps, setEnabledMcps] = useState([])
   const [streamController, setStreamController] = useState(null)
   const [sandboxError, setSandboxError] = useState(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -90,7 +92,13 @@ export default function ChatInterface({ session }) {
               return
             }
 
+            if (data.chunk === '.') {
+              setIsProcessing(true)
+              return
+            }
+
             if (data.chunk) {
+              setIsProcessing(false)
               assistantMessage += data.chunk
               // Update the last assistant message or add new one
               setMessages(prev => {
@@ -111,6 +119,7 @@ export default function ChatInterface({ session }) {
             }
 
             if (data.done) {
+              setIsProcessing(false)
               setLoading(false)
               setStreamController(null)
             }
@@ -122,6 +131,7 @@ export default function ChatInterface({ session }) {
           console.error('SSE error:', error)
           setSandboxError('Connection lost to sandbox. Please reconnect.')
           setLoading(false)
+          setIsProcessing(false)
           setStreamController(null)
           throw error // This will stop the stream
         }
@@ -130,6 +140,7 @@ export default function ChatInterface({ session }) {
     } catch (error) {
       console.error('Error sending message:', error)
       setLoading(false)
+      setIsProcessing(false)
       setStreamController(null)
     }
   }
@@ -148,6 +159,7 @@ export default function ChatInterface({ session }) {
     setInputMessage('')
     setLoading(false)
     setSandboxError(null)
+    setIsProcessing(false)
     if (streamController) {
       streamController.abort()
       setStreamController(null)
@@ -356,6 +368,7 @@ export default function ChatInterface({ session }) {
                           >
                             <pre className="whitespace-pre-wrap font-sans text-sm">
                               {message.content}
+                              {message.role === 'assistant' && isProcessing && index === messages.length - 1 && <SpinnerText />}
                             </pre>
                           </div>
                         </div>
