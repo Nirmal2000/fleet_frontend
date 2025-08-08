@@ -13,6 +13,53 @@ import MCPManager from '@/components/MCPManager'
 import ChatSessionList from '@/components/ChatSessionList'
 import SpinnerText from '@/components/SpinnerText'
 
+// Utility function to parse and render message content with inline images
+const parseMessageContent = (content) => {
+  // Split content by newlines to process each line individually
+  const lines = content.split('\n')
+  
+  return lines.map((line, lineIndex) => {
+    // Check if this line contains a download URL
+    const downloadUrlRegex = /Download URL: (https:\/\/[^\s]+\.(jpeg|jpg|png|gif|webp))/i
+    const match = line.match(downloadUrlRegex)
+    
+    if (match) {
+      const url = match[1]
+      const beforeUrl = line.substring(0, match.index)
+      const afterUrl = line.substring(match.index + match[0].length)
+      
+      return (
+        <div key={lineIndex}>
+          {beforeUrl && <span>{beforeUrl}</span>}
+          <img 
+            src={url} 
+            alt="Generated content" 
+            className="max-w-full h-auto my-2 rounded-lg border block"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              // Create a fallback text node
+              const fallback = document.createElement('span')
+              fallback.textContent = `[Image failed to load: ${url}]`
+              fallback.className = 'text-muted-foreground text-sm italic'
+              e.target.parentNode.insertBefore(fallback, e.target.nextSibling)
+            }}
+          />
+          {afterUrl && <span>{afterUrl}</span>}
+          {lineIndex < lines.length - 1 && <br />}
+        </div>
+      )
+    }
+    
+    // Regular text line
+    return (
+      <span key={lineIndex}>
+        {line}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    )
+  }).filter(Boolean)
+}
+
 export default function ChatInterface({ session }) {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
@@ -366,10 +413,10 @@ export default function ChatInterface({ session }) {
                                 : 'bg-muted'
                             }`}
                           >
-                            <pre className="whitespace-pre-wrap font-sans text-sm">
-                              {message.content}
+                            <div className="whitespace-pre-wrap font-sans text-sm">
+                              {parseMessageContent(message.content)}
                               {message.role === 'assistant' && isProcessing && index === messages.length - 1 && <SpinnerText />}
-                            </pre>
+                            </div>
                           </div>
                         </div>
                       ))}
