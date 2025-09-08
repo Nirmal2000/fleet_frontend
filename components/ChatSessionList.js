@@ -3,8 +3,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Plus } from 'lucide-react'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar'
+import { Plus, Search } from 'lucide-react'
 
 export default function ChatSessionList({ session, onSelectChat, currentChatId }) {
   const [chatSessions, setChatSessions] = useState([])
@@ -52,62 +60,67 @@ export default function ChatSessionList({ session, onSelectChat, currentChatId }
 
   if (loading) {
     return (
-      <div className="w-80 border-r bg-muted/30 p-4">
-        <div className="text-sm text-muted-foreground">Loading...</div>
-      </div>
+      <Sidebar>
+        <SidebarContent className="pt-4">
+          <div className="text-sm text-muted-foreground p-4">Loading...</div>
+        </SidebarContent>
+      </Sidebar>
     )
   }
 
   return (
-    <div className="w-80 border-r bg-muted/30 flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          <h2 className="font-semibold">Chat Sessions</h2>
-          <Button size="sm" onClick={handleNewChat}>
-            <Plus className="h-4 w-4 mr-1" />
-            New
+    <Sidebar>
+      <SidebarHeader className="flex flex-row items-center justify-between gap-2 px-2 py-4">
+        <div className="flex flex-row items-center gap-2 px-2">
+          <div className="bg-primary/10 size-8 rounded-md"></div>
+          <div className="text-md font-base text-primary tracking-tight">
+            Fleet
+          </div>
+        </div>
+        <Button variant="ghost" className="size-8">
+          <Search className="size-4" />
+        </Button>
+      </SidebarHeader>
+      <SidebarContent className="pt-4">
+        <div className="px-4">
+          <Button
+            variant="outline"
+            className="mb-4 flex w-full items-center gap-2"
+            onClick={handleNewChat}
+          >
+            <Plus className="size-4" />
+            <span>New Chat</span>
           </Button>
         </div>
-      </div>
 
-      {/* Session List */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-2">
-          {chatSessions.length === 0 ? (
-            <Card className="m-2">
-              <CardContent className="p-4 text-center">
+        {chatSessions.length === 0 ? (
+          <SidebarGroup>
+            <SidebarMenu>
+              <div className="px-4 py-2 text-center">
                 <p className="text-sm text-muted-foreground mb-3">No chat sessions yet</p>
                 <Button onClick={handleNewChat} className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Chat
                 </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            chatSessions.map((chatSession) => (
-              <Card 
-                key={chatSession.chat_id}
-                className={`m-2 cursor-pointer transition-colors hover:bg-accent ${
-                  currentChatId === chatSession.chat_id ? 'bg-accent border-primary' : ''
-                }`}
-                onClick={() => onSelectChat(chatSession.chat_id, false)}
-              >
-                <CardContent className="p-3">
-                  <div className="space-y-1">
-                    <div className="font-medium text-sm truncate">
-                      {chatSession.chat_id.replace('chat_', '').substring(0, 20)}...
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {formatDate(chatSession.last_activity)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
+              </div>
+            </SidebarMenu>
+          </SidebarGroup>
+        ) : (
+          <SidebarGroup>
+            <SidebarMenu>
+              {chatSessions.map((chatSession, index) => (
+                <SidebarMenuButton
+                  key={chatSession.chat_id}
+                  onClick={() => onSelectChat(chatSession.chat_id, false)}
+                  className={currentChatId === chatSession.chat_id ? 'bg-accent border-primary' : ''}
+                >
+                  <span>Chat {index + 1}</span>
+                </SidebarMenuButton>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+      </SidebarContent>
+    </Sidebar>
   )
 }
