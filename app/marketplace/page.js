@@ -57,6 +57,7 @@ function EmptyState({ searchQuery }) {
 export default function MarketplacePage() {
   const { isAuthenticated, isSessionLoading } = useSession()
   const { user, isUserLoading } = useUser()
+  console.log("User:", user)
   const router = useRouter()
   const { getSessionToken } = useDescope()
 

@@ -268,7 +268,7 @@ export default function MarketplacePage() {
       refetchMcps()
     }
   })
-
+  
   useEffect(() => {
     if (!isSessionLoading && !isAuthenticated) {
       router.push('/')

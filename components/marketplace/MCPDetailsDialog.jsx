@@ -13,6 +13,7 @@ export default function MCPDetailsDialog({
   isOwner,
   getSessionToken,
   onSaved,
+  chatId,
 }) {
   const [clientEnv, setClientEnv] = useState({})
   const [generalEnv, setGeneralEnv] = useState({})
@@ -20,6 +21,7 @@ export default function MCPDetailsDialog({
   const [updatingVisibility, setUpdatingVisibility] = useState(false)
   const [roles, setRoles] = useState([])
   const [toolRoles, setToolRoles] = useState({})
+  const [toggling, setToggling] = useState(false)
 
   // Initialize env states on open/mcp change
   useEffect(() => {
@@ -145,6 +147,30 @@ export default function MCPDetailsDialog({
     }
   }
 
+  const enableForChat = async () => {
+    if (!mcp?.id || !chatId) return
+    try {
+      setToggling(true)
+      const token = await getSessionToken?.()
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/chat/${chatId}/toggle-mcp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ mcp_id: mcp.id, enabled: true })
+      })
+      const data = await res.json()
+      if (!data?.success) throw new Error(data?.message || 'Failed to enable MCP')
+      onSaved?.()
+      onOpenChange?.(false)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setToggling(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
@@ -250,6 +276,11 @@ export default function MCPDetailsDialog({
         </div>
 
         <div className="flex justify-end gap-2 pt-3 border-t bg-background">
+          {chatId && (
+            <Button variant="secondary" onClick={enableForChat} disabled={toggling}>
+              {toggling ? 'Enabling…' : 'Enable for this chat'}
+            </Button>
+          )}
           <Button onClick={saveEnvs} disabled={saving}>
             {saving ? 'Saving...' : 'Save'}
           </Button>

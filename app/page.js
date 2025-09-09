@@ -9,6 +9,7 @@ export default function Home() {
   const { isAuthenticated, isSessionLoading } = useSession()
   const { user, isUserLoading } = useUser()
   const router = useRouter()
+  console.log('User:', user)
 
   useEffect(() => {
     if (isAuthenticated) {

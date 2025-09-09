@@ -7,7 +7,7 @@ import { useSession, useDescope } from '@descope/react-sdk'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Zap, Plus, LogOut, MessageCircle } from 'lucide-react'
+import { Zap, Plus, LogOut, MessageCircle, Crown, Store } from 'lucide-react'
 
 export default function Navbar() {
   const { isAuthenticated, user } = useSession()
@@ -63,6 +63,34 @@ export default function Navbar() {
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     Create MCP
+                  </Link>
+                )}
+
+                {pathname !== '/marketplace' && (
+                  <Link
+                    href="/marketplace"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
+                      isActive('/marketplace')
+                        ? 'text-primary border-primary bg-primary/10'
+                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
+                    }`}
+                  >
+                    <Store className="mr-2 h-4 w-4" />
+                    Marketplace
+                  </Link>
+                )}
+
+                {pathname !== '/membership' && (
+                  <Link
+                    href="/membership"
+                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
+                      isActive('/membership')
+                        ? 'text-primary border-primary bg-primary/10'
+                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
+                    }`}
+                  >
+                    <Crown className="mr-2 h-4 w-4" />
+                    Membership
                   </Link>
                 )}
 

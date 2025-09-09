@@ -5,15 +5,47 @@ import {
   PromptInputActions,
   PromptInputTextarea,
 } from '@/components/ui/prompt-input'
-import { Globe, Mic, MoreHorizontal, Plus, ArrowUp } from 'lucide-react'
+import { Globe, Mic, MoreHorizontal, Plus, ArrowUp, SquareAsterisk } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import MCPDetailsDialog from '@/components/marketplace/MCPDetailsDialog'
+import { useMcps } from '@/hooks/useMcps'
+import { useDescope, useUser } from '@descope/react-sdk'
+import { useMemo, useState } from 'react'
 
 export function ChatInput({
   inputMessage,
   setInputMessage,
   loading,
   sandboxCreated,
-  onSendMessage
+  onSendMessage,
+  chatId,
 }) {
+  const { mcps } = useMcps()
+  const { getSessionToken } = useDescope()
+  const { user } = useUser()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedMcp, setSelectedMcp] = useState(null)
+
+  const marketplaceItems = useMemo(() => {
+    const items = mcps || []
+    const userId = user?.userId || user?.sub || user?.id || user?.user_id
+    return items.filter((m) => {
+      const vis = (m?.config?.metadata?.visibility || 'public')
+      const owner = m?.user_id && userId && m.user_id === userId
+      return vis === 'public' || owner
+    })
+  }, [mcps, user])
+
+  const openMcpDetails = (m) => {
+    setSelectedMcp(m)
+    setDialogOpen(true)
+  }
+
   return (
     <div className="mt-4">
       <PromptInput
@@ -40,6 +72,36 @@ export function ChatInput({
                 >
                   <Plus size={18} />
                 </Button>
+              </PromptInputAction>
+
+              <PromptInputAction tooltip="Add MCP to this chat">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="rounded-full"
+                      disabled={!sandboxCreated}
+                    >
+                      <SquareAsterisk size={18} className="mr-2" />
+                      Add MCP
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64 max-h-80">
+                    {marketplaceItems.length === 0 ? (
+                      <DropdownMenuItem disabled>No MCPs found</DropdownMenuItem>
+                    ) : (
+                      marketplaceItems.map((m) => (
+                        <DropdownMenuItem
+                          key={m.id}
+                          className="cursor-pointer"
+                          onClick={() => openMcpDetails(m)}
+                        >
+                          {m.title || m.name}
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </PromptInputAction>
 
               <PromptInputAction tooltip="Search">
@@ -86,6 +148,16 @@ export function ChatInput({
           </PromptInputActions>
         </div>
       </PromptInput>
+
+      <MCPDetailsDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        mcp={selectedMcp}
+        isOwner={false}
+        getSessionToken={getSessionToken}
+        onSaved={() => { /* no-op here */ }}
+        chatId={chatId}
+      />
     </div>
   )
 }

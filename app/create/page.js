@@ -179,12 +179,11 @@ function CreateMCPForm() {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          {/* Startup commands - at least one required */}
+          {/* Startup commands - optional */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <FormLabel>
                 Startup Commands
-                <span className="ml-1 text-red-500">*</span>
               </FormLabel>
               <Button type="button" variant="outline" size="sm" onClick={addStartupCmd}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -208,7 +207,7 @@ function CreateMCPForm() {
               </div>
             ))}
             {/* Tip line */}
-            <p className="text-xs text-muted-foreground">Tip: paste multiple lines to auto-split into separate commands. At least one command is required.</p>
+            <p className="text-xs text-muted-foreground">Tip: paste multiple lines to auto-split into separate commands. This section is optional.</p>
           </div>
 
           <div className="space-y-4">
@@ -344,7 +343,6 @@ function CreateMCPForm() {
             <Button
               type="button"
               variant="default"
-              disabled={!startupCommands.some((c) => c.trim().length > 0)}
               onClick={handleSave}
             >
               Save

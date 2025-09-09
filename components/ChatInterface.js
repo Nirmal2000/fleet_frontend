@@ -164,6 +164,7 @@ export default function ChatInterface() {
                   loading={chatLoading}
                   sandboxCreated={sandboxCreated}
                   onSendMessage={handleSendMessage}
+                  chatId={chatId}
                 />
               </>
             )}
