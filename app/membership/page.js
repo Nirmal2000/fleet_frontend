@@ -91,7 +91,7 @@ export default function MembershipPage() {
         </div>
 
         <div className="mt-8 text-xs text-muted-foreground">
-          This is a demo hackathon project. Selecting a plan updates your Descope role to either "free" or "premium". No payment is processed.
+          This is a demo hackathon project. Selecting a plan updates your Descope role to either &#34;free&#34; or &#34;premium&#34;. No payment is processed.
         </div>
       </main>
     </div>
