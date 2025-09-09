@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import MCPConfigDialog from '@/components/MCPConfigDialog'
 import MCPCard from '@/components/MCPCard'
 import ActiveMCPsList from '@/components/ActiveMCPsList'
@@ -9,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Plus, AlertTriangle, RefreshCw } from 'lucide-react'
+import { useDescope, useUser } from '@descope/react-sdk'
 
 export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated, chatId, session, onReconnect }) {
   const [loading, setLoading] = useState({})
@@ -19,6 +19,10 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
   const [selectedMcp, setSelectedMcp] = useState(null)
   const [sandboxError, setSandboxError] = useState(null)
 
+  // Descope hooks
+  const { getSessionToken } = useDescope()
+  const { user } = useUser()
+
   useEffect(() => {
     loadAvailableMcps()
   }, [])
@@ -26,15 +30,15 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
   const loadAvailableMcps = async () => {
     try {
       setLoadingMcps(true)
-      const { data: { session: userSession } } = await supabase.auth.getSession()
-      
+      const sessionToken = getSessionToken()
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/mcps`, {
-        headers: userSession?.access_token ? {
-          'Authorization': `Bearer ${userSession.access_token}`
+        headers: sessionToken ? {
+          'Authorization': `Bearer ${sessionToken}`
         } : {}
       })
       const data = await response.json()
-      
+
       if (data.success) {
         setAvailableMcps(data.mcps)
       }
@@ -75,7 +79,7 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
       if (sandboxCreated) {
         // Get sandbox URL and send MCP toggle request
         const deviceId = localStorage.getItem('device_id')
-        const sandboxResponse = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/sandbox/${chatId}?user_id=${session.user.id}`, {
+        const sandboxResponse = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/sandbox/${chatId}?user_id=${user.userId}`, {
           headers: {
             'X-Device-ID': deviceId
           }
@@ -103,7 +107,7 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
               mcp_name: mcpConfig.name,
               enabled: true,
               config: mcpConfig.config,
-              user_id: session.user.id
+              user_id: user.userId
             })
           })
           
@@ -137,9 +141,10 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
       if (sandboxCreated) {
         // Get sandbox URL and send MCP toggle request
         const deviceId = localStorage.getItem('device_id')
-        const sandboxResponse = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/sandbox/${chatId}?user_id=${session.user.id}`, {
+        const sandboxResponse = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/sandbox/${chatId}?user_id=${user.userId}`, {
           headers: {
-            'X-Device-ID': deviceId
+            'X-Device-ID': deviceId,
+            'Authorization': `Bearer ${getSessionToken()}`
           }
         })
         
@@ -159,13 +164,13 @@ export default function MCPManager({ enabledMcps, setEnabledMcps, sandboxCreated
             headers: {
               'Content-Type': 'application/json',
               'X-Device-ID': deviceId,
-              'Authorization': `Bearer ${session?.access_token}`
+              'Authorization': `Bearer ${sessionToken}`
             },
             body: JSON.stringify({
               mcp_name: mcp.name,
               enabled: enabled,
               config: enabled ? mcp.config : null,
-              user_id: session.user.id
+              user_id: user.userId
             })
           })
           

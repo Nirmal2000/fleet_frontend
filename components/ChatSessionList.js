@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { useDescope } from '@descope/react-sdk'
 import { Button } from '@/components/ui/button'
 import {
   Sidebar,
@@ -12,28 +12,29 @@ import {
   SidebarMenu,
   SidebarMenuButton,
 } from '@/components/ui/sidebar'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Zap } from 'lucide-react'
 
-export default function ChatSessionList({ session, onSelectChat, currentChatId }) {
+export default function ChatSessionList({ user, onSelectChat, currentChatId }) {
   const [chatSessions, setChatSessions] = useState([])
   const [loading, setLoading] = useState(true)
+  const { getSessionToken } = useDescope()
 
   useEffect(() => {
     loadChatSessions()
-  }, [session.user.id])
+  }, [user?.userId])
 
   const loadChatSessions = async () => {
     try {
       setLoading(true)
-      const { data: { session: userSession } } = await supabase.auth.getSession()
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/user/${session.user.id}/sessions`, {
+      const sessionToken = getSessionToken()
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/user/sessions`, {
         headers: {
-          'Authorization': `Bearer ${userSession?.access_token}`
+          'Authorization': `Bearer ${sessionToken}`
         }
       })
       const data = await response.json()
-      
+
       if (data.success) {
         setChatSessions(data.sessions)
       }
@@ -72,12 +73,12 @@ export default function ChatSessionList({ session, onSelectChat, currentChatId }
     <Sidebar>
       <SidebarHeader className="flex flex-row items-center justify-between gap-2 px-2 py-4">
         <div className="flex flex-row items-center gap-2 px-2">
-          <div className="bg-primary/10 size-8 rounded-md"></div>
-          <div className="text-md font-base text-primary tracking-tight">
-            Fleet
+          <div className="w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-500 rounded-lg flex items-center justify-center">
+            <Zap className="w-4 h-4 text-black" />
           </div>
+          <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Fleet</span>
         </div>
-        <Button variant="ghost" className="size-8">
+        <Button variant="ghost" className="size-8" aria-label="Search">
           <Search className="size-4" />
         </Button>
       </SidebarHeader>

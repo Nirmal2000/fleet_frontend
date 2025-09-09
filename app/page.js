@@ -1,30 +1,22 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import ChatInterface from '@/components/ChatInterface'
+import { useSession, useUser } from '@descope/react-sdk'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import Auth from '@/components/Auth'
 
 export default function Home() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { isAuthenticated, isSessionLoading } = useSession()
+  const { user, isUserLoading } = useUser()
+  const router = useRouter()
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
+    if (isAuthenticated) {
+      router.push('/chat')
+    }
+  }, [isAuthenticated, router])
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  if (loading) {
+  if (isSessionLoading || isUserLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg">Loading...</div>
@@ -32,9 +24,9 @@ export default function Home() {
     )
   }
 
-  if (!session) {
+  if (!isAuthenticated) {
     return <Auth />
   }
 
-  return <ChatInterface session={session} />
+  return null // Will redirect to /chat
 }

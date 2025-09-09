@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
-import { supabase } from '@/lib/supabase'
+import { useDescope, useSession, useUser } from '@descope/react-sdk'
 
-export function useChat(session, chatId, deviceId) {
+export function useChat(chatId, deviceId) {
   const [messages, setMessages] = useState([])
   const [inputMessage, setInputMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [streamController, setStreamController] = useState(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const messagesEndRef = useRef(null)
+
+  const { getSessionToken } = useDescope()
+  const { user } = useUser()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -21,6 +24,11 @@ export function useChat(session, chatId, deviceId) {
   const sendMessage = async (setSandboxError) => {
     if (!inputMessage.trim()) return
 
+    if (!user || !getSessionToken) {
+      console.error('User not authenticated')
+      return
+    }
+
     const userMessage = {
       role: 'user',
       content: inputMessage.trim()
@@ -28,7 +36,7 @@ export function useChat(session, chatId, deviceId) {
 
     setMessages(prev => [...prev, userMessage])
     setLoading(true)
-    
+
     const messageToSend = inputMessage.trim()
     setInputMessage('')
 
@@ -39,7 +47,7 @@ export function useChat(session, chatId, deviceId) {
       }
 
       // Get auth token
-      const { data: { session: userSession } } = await supabase.auth.getSession()
+      const sessionToken = getSessionToken()
 
       let assistantMessage = ''
       const controller = new AbortController()
@@ -49,17 +57,19 @@ export function useChat(session, chatId, deviceId) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userSession?.access_token}`,
+          'Authorization': `Bearer ${sessionToken}`,
         },
         body: JSON.stringify({
           message: messageToSend,
-          user_id: session.user.id,
+          user_id: user.userId,
           device_id: deviceId
         }),
         signal: controller.signal,
         openWhenHidden: true,
         onmessage(event) {
           try {
+            if (!event.data | event.data === '.') return
+            console.log('SSE event data:', event.data)
             const data = JSON.parse(event.data)
             
             if (data.error) {

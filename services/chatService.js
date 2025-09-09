@@ -1,15 +1,13 @@
-import { supabase } from '@/lib/supabase'
-
 export const chatService = {
-  async connectToChat(chatId, userId, deviceId) {
+  async connectToChat(chatId, userId, deviceId, getSessionToken) {
     try {
-      const { data: { session: userSession } } = await supabase.auth.getSession()
-      
+      const sessionToken = getSessionToken()
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/connect-chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userSession?.access_token}`
+          'Authorization': `Bearer ${sessionToken}`
         },
         body: JSON.stringify({
           chat_id: chatId,
@@ -26,15 +24,15 @@ export const chatService = {
     }
   },
 
-  async getSandboxStatus(chatId, userId) {
+  async getSandboxStatus(chatId, userId, getSessionToken) {
     try {
-      const { data: { session: userSession } } = await supabase.auth.getSession()
-      
+      const sessionToken = getSessionToken()
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/sandbox-status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userSession?.access_token}`
+          'Authorization': `Bearer ${sessionToken}`
         },
         body: JSON.stringify({
           chat_id: chatId,
@@ -50,7 +48,7 @@ export const chatService = {
     }
   },
 
-  async signOut() {
-    await supabase.auth.signOut()
+  async signOut(logout) {
+    logout()
   }
 }

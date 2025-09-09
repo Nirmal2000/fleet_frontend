@@ -5,7 +5,7 @@ export function useSandbox() {
   const [sandboxCreated, setSandboxCreated] = useState(false)
   const [sandboxError, setSandboxError] = useState(null)
 
-  const pollForSandboxReady = async (chatId, accessToken, userId) => {
+  const pollForSandboxReady = async (chatId, accessToken, userId, getSessionToken) => {
     const maxAttempts = 30 // 30 attempts * 2 seconds = 1 minute max
     let attempts = 0
     
@@ -16,7 +16,7 @@ export function useSandbox() {
       }
       
       try {
-        const data = await chatService.getSandboxStatus(chatId, userId)
+        const data = await chatService.getSandboxStatus(chatId, userId, getSessionToken)
         
         if (data.success && data.sandbox_status === 'ready') {
           setSandboxCreated(true)
