@@ -73,8 +73,7 @@ export function ChatInput({
         {
           // Must be camelCase: redirectUrl
           redirectUrl: typeof window !== 'undefined' ? window.location.href : undefined,
-        },
-        token
+        }
       )
       const url = (resp && (resp.data?.url || resp.url)) || null
       console.log('Outbound connect response', resp, url)
