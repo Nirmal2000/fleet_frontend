@@ -350,7 +350,7 @@ export default function MarketplacePage() {
     setGeneralEnv(genInit)
     try {
       if (m?.id && userId) {
-        const token = await getSessionToken()
+        const token = getSessionToken()
         const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/client-mcps/${m.id}`, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         })
@@ -370,7 +370,7 @@ export default function MarketplacePage() {
     if (!selectedMcp?.id) return
     setSavingClientEnv(true)
     try {
-      const token = await getSessionToken()
+      const token = getSessionToken()
       // Save per-user MCP env (available to all users)
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/client-mcps/${selectedMcp.id}`, {
         method: 'POST',
@@ -407,7 +407,7 @@ export default function MarketplacePage() {
     if (!selectedMcp?.id) return
     try {
       setUpdatingVisibility(true)
-      const token = await getSessionToken()
+      const token = getSessionToken()
       const current = selectedMcp?.config?.metadata?.visibility || 'public'
       const next = current === 'public' ? 'private' : 'public'
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/mcps/${selectedMcp.id}/visibility`, {

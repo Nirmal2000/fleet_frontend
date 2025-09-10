@@ -46,7 +46,7 @@ export default function MCPDetailsDialog({
     ;(async () => {
       try {
         if (mcp?.id && getSessionToken) {
-          const token = await getSessionToken()
+          const token = getSessionToken()
           const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/client-mcps/${mcp.id}`, {
             headers: token ? { 'Authorization': `Bearer ${token}` } : {}
           })
@@ -60,7 +60,7 @@ export default function MCPDetailsDialog({
     // Fetch available Descope roles for dropdown
     ;(async () => {
       try {
-        const token = await getSessionToken?.()
+        const token = getSessionToken?.()
         const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/descope/roles`, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         })
@@ -74,7 +74,7 @@ export default function MCPDetailsDialog({
     if (!mcp?.id) return
     setSaving(true)
     try {
-      const token = await getSessionToken()
+      const token = getSessionToken()
       // Save per-user env
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/client-mcps/${mcp.id}`, {
         method: 'POST',
@@ -132,7 +132,7 @@ export default function MCPDetailsDialog({
     if (!mcp?.id) return
     try {
       setUpdatingVisibility(true)
-      const token = await getSessionToken()
+      const token = getSessionToken()
       const current = mcp?.config?.metadata?.visibility || 'public'
       const next = current === 'public' ? 'private' : 'public'
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/mcps/${mcp.id}/visibility`, {

@@ -106,6 +106,10 @@
   background-image: linear-gradient(to right, #242628 0%, #242628 100%);
 }
 
+/* Solid surfaces and borders for chat UI tweaks */
+.chat-solid-bg { background-color: #1a1c1e; }
+.chat-solid-border { border-color: #1b1d1f; }
+
 /* Primary action button inside chat input */
 .btn-chat-primary {
   background-image: linear-gradient(to right, #242628 0%, #242628 100%);

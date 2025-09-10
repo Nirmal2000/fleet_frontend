@@ -49,11 +49,11 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
             ) : (
               <>
                 <MessageContent
-                  markdown={message.role === 'assistant'}
+                  markdown
                   className={`max-w-[70%] ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background text-foreground'
+                      ? 'bg-primary text-primary-foreground rounded-2xl px-4 py-2'
+                      : 'bg-transparent text-foreground rounded-none p-0 shadow-none dark:prose-invert prose-headings:font-semibold prose-p:leading-relaxed'
                   }`}
                 >
                   {message.content}
@@ -81,7 +81,7 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
         {loading && (
           <div className="mx-auto w-full max-w-3xl px-6">
             <Message className="justify-start">
-              <MessageContent className="bg-background text-foreground">
+              <MessageContent className="bg-transparent text-foreground rounded-none p-0 shadow-none dark:prose-invert">
                 <div className="text-sm">Thinking...</div>
               </MessageContent>
             </Message>

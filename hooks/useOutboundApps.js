@@ -9,7 +9,7 @@ export function useOutboundApps(getSessionToken) {
   const fetchOutboundApps = useCallback(async () => {
     try {
       setLoading(true)
-      const token = typeof getSessionToken === 'function' ? await getSessionToken() : null
+      const token = getSessionToken()
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/outbound-apps`, { headers })
       const data = await res.json()

@@ -5,19 +5,21 @@ import {
   PromptInputActions,
   PromptInputTextarea,
 } from '@/components/ui/prompt-input'
-import { Globe, Mic, MoreHorizontal, Plus, ArrowUp, SquareAsterisk } from 'lucide-react'
+import { Globe, Mic, MoreHorizontal, Plus, ArrowUp, SquareAsterisk, Wrench } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import MCPDetailsDialog from '@/components/marketplace/MCPDetailsDialog'
+// MCPDetailsDialog intentionally not used per requirements
 import { useMcps } from '@/hooks/useMcps'
 import { useOutboundApps } from '@/hooks/useOutboundApps'
 import { useDescope, useUser } from '@descope/react-sdk'
 import { useMemo, useState } from 'react'
+import { beginInboundLogin } from '@/lib/inboundAuth'
 import { Switch } from '@/components/ui/switch'
+import AddToolsCard from '@/components/chat/AddToolsCard'
 
 export function ChatInput({
   inputMessage,
@@ -31,8 +33,8 @@ export function ChatInput({
   const { getSessionToken, outbound } = useDescope()  
   const { integrations, refetch: refetchIntegrations } = useOutboundApps(getSessionToken)
   const { user } = useUser()
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedMcp, setSelectedMcp] = useState(null)
+  // Removed MCPDetailsDialog usage
+  const [toolsOpen, setToolsOpen] = useState(false)
 
   const marketplaceItems = useMemo(() => {
     const items = mcps || []
@@ -44,9 +46,19 @@ export function ChatInput({
     })
   }, [mcps, user])
 
-  const openMcpDetails = (m) => {
-    setSelectedMcp(m)
-    setDialogOpen(true)
+  const connectMcpInbound = async (m) => {
+    try {
+      // Fetch per-MCP inbound clientId if available, fallback to default
+      let clientId
+      try {
+        const cfgRes = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/mcps/${m.id}/inbound-config`)
+        const cfg = await cfgRes.json().catch(() => ({}))
+        clientId = cfg?.clientId
+      } catch {}
+      await beginInboundLogin({ mcpId: m.id, chatId, clientId, scopes: [] })
+    } catch (e) {
+      console.warn('Inbound login failed', e)
+    }
   }
 
   const handleConnectIntegration = async (app) => {
@@ -54,7 +66,7 @@ export function ChatInput({
     try {
       // Initiate Descope outbound OAuth flow; tokens are stored server-side by Descope.
       // Assumption: app.id is the outbound app ID and app.name is display name.
-      const token = await getSessionToken()?.catch?.(() => null)
+      const token = getSessionToken()
       const resp = await outbound.connect(
         app.id,
         {
@@ -107,7 +119,7 @@ export function ChatInput({
         value={inputMessage}
         onValueChange={setInputMessage}
         onSubmit={onSendMessage}
-        className="border-input chat-input-surface relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
+        className="border-input chat-solid-bg chat-solid-border relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
         disabled={!sandboxCreated}
       >
         <div className="flex flex-col">
@@ -118,88 +130,16 @@ export function ChatInput({
 
           <PromptInputActions className="mt-5 flex w-full items-center justify-between gap-2 px-3 pb-3">
             <div className="flex items-center gap-2">
-              {/* <PromptInputAction tooltip="Add a new action">
+              <PromptInputAction tooltip="Add tools">
                 <Button
                   variant="outline"
-                  size="icon"
-                  className="size-9 rounded-full"
+                  className="rounded-full btn-chat-primary"
+                  disabled={!sandboxCreated}
+                  onClick={() => setToolsOpen(true)}
                 >
-                  <Plus size={18} />
+                  <Wrench size={18} className="mr-2" />
+                  Add tools
                 </Button>
-              </PromptInputAction> */}
-
-              <PromptInputAction tooltip="Add MCP to this chat">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="rounded-full btn-chat-primary"
-                      disabled={!sandboxCreated}
-                    >
-                      <SquareAsterisk size={18} className="mr-2" />
-                      Add MCP
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64 max-h-80">
-                    {marketplaceItems.length === 0 ? (
-                      <DropdownMenuItem disabled>No MCPs found</DropdownMenuItem>
-                    ) : (
-                      marketplaceItems.map((m) => (
-                        <DropdownMenuItem
-                          key={m.id}
-                          className="cursor-pointer"
-                          onClick={() => openMcpDetails(m)}
-                        >
-                          {m.title || m.name}
-                        </DropdownMenuItem>
-                      ))
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </PromptInputAction>
-
-              <PromptInputAction tooltip="Add Integration to this chat">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="rounded-full btn-chat-primary"
-                      disabled={!sandboxCreated}
-                    >
-                      <SquareAsterisk size={18} className="mr-2" />
-                      Add Integration
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-72 max-h-80">
-                    {(integrations || []).length === 0 ? (
-                      <DropdownMenuItem disabled>No integrations found</DropdownMenuItem>
-                    ) : (
-                      (integrations || []).map((it) => (
-                        <DropdownMenuItem
-                          key={it.id || it.name}
-                          className="cursor-pointer group flex items-center"
-                          onSelect={(e) => { e.preventDefault(); if (!it.connected) handleConnectIntegration(it) }}
-                        >
-                          <span className="truncate">{it.name}</span>
-                          <span className="ml-auto flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            {!it.connected && (
-                              <button
-                                className="text-xs text-primary underline"
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleConnectIntegration(it) }}
-                              >
-                                Connect
-                              </button>
-                            )}
-                            <Switch
-                              disabled={!it.connected || !sandboxCreated}
-                              onCheckedChange={(checked) => handleToggleIntegration(it, checked)}
-                            />
-                          </span>
-                        </DropdownMenuItem>
-                      ))
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </PromptInputAction>
 
               {/* <PromptInputAction tooltip="Search">
@@ -238,15 +178,53 @@ export function ChatInput({
         </div>
       </PromptInput>
 
-      <MCPDetailsDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        mcp={selectedMcp}
-        isOwner={false}
-        getSessionToken={getSessionToken}
-        onSaved={() => { /* no-op here */ }}
-        chatId={chatId}
+      {/* Narrow tools picker card */}
+      <AddToolsCard
+        open={toolsOpen}
+        onOpenChange={setToolsOpen}
+        mcps={marketplaceItems}
+        integrations={integrations}
+        onConnectMcp={(m) => connectMcpInbound(m)}
+        onToggleMcp={async (m, enabled) => {
+          if (!m?.id || !chatId) return
+          try {
+            const token = getSessionToken()
+            const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/chat/${encodeURIComponent(chatId)}/toggle-mcp`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              credentials: 'include',
+              body: JSON.stringify({ mcp_id: m.id, enabled: !!enabled })
+            })
+            const data = await res.json().catch(() => ({}))
+            if (!res.ok || !data?.success) {
+              // await connectMcpInbound(m)
+            }
+          } catch (e) {
+            await connectMcpInbound(m)
+          }
+        }}
+        onConnectIntegration={(it) => handleConnectIntegration(it)}
+        onToggleIntegration={(it, checked) => handleToggleIntegration(it, checked)}
+        onSaveMcpEnv={async (m, key, value) => {
+          try {
+            const token = getSessionToken()
+            await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/client-mcps/${m.id}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify({ env_variables: { [key]: value } })
+            })
+          } catch (e) {
+            console.warn('Failed saving MCP env', e)
+          }
+        }}
       />
+      {/* MCPDetailsDialog intentionally removed */}
     </div>
   )
 }
