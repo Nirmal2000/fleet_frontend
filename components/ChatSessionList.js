@@ -86,7 +86,7 @@ export default function ChatSessionList({ user, onSelectChat, currentChatId }) {
         <div className="px-4">
           <Button
             variant="outline"
-            className="mb-4 flex w-full items-center gap-2"
+            className="mb-4 flex w-full items-center gap-2 fleet-surface text-white border-transparent"
             onClick={handleNewChat}
           >
             <Plus className="size-4" />
@@ -99,10 +99,10 @@ export default function ChatSessionList({ user, onSelectChat, currentChatId }) {
             <SidebarMenu>
               <div className="px-4 py-2 text-center">
                 <p className="text-sm text-muted-foreground mb-3">No chat sessions yet</p>
-                <Button onClick={handleNewChat} className="w-full">
+                {/* <Button onClick={handleNewChat} className="w-full">
                   <Plus className="h-4 w-4 mr-2" />
                   Create First Chat
-                </Button>
+                </Button> */}
               </div>
             </SidebarMenu>
           </SidebarGroup>
@@ -113,7 +113,7 @@ export default function ChatSessionList({ user, onSelectChat, currentChatId }) {
                 <SidebarMenuButton
                   key={chatSession.chat_id}
                   onClick={() => onSelectChat(chatSession.chat_id, false)}
-                  className={currentChatId === chatSession.chat_id ? 'bg-accent border-primary' : ''}
+                  className={`${currentChatId === chatSession.chat_id ? 'bg-[#2b2c2f] text-white' : ''} hover:bg-[#5d6169] hover:text-white transition-colors`}
                 >
                   <span>Chat {index + 1}</span>
                 </SidebarMenuButton>

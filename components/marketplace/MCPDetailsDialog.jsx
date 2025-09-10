@@ -232,7 +232,7 @@ export default function MCPDetailsDialog({
                     <div className="text-xs text-muted-foreground line-clamp-3">{t.description}</div>
                     {isOwner && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs">Role</span>
+                        {/* <span className="text-xs">Role</span> */}
                         <select
                           className="bg-transparent border border-gray-700 rounded px-2 py-1 text-xs flex-1"
                           value={roleValue}

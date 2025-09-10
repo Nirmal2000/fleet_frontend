@@ -82,3 +82,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* App-wide gradient background utility (exclude landing page by usage) */
+.bg-fleet-gradient {
+  background-image: linear-gradient(to right, #141719 0%, #141719 100%);
+}
+
+/* Reusable dark surface for dropdown items and action buttons */
+.fleet-surface {
+  background-image: linear-gradient(to right, #3d3f43 0%, #3d3f43 100%);
+  transition: background 150ms ease;
+}
+.fleet-surface:hover {
+  background-image: linear-gradient(to right, #35373a 0%, #35373a 100%);
+}
+/* Static surface (no hover change) for dropdown containers */
+.fleet-surface-base {
+  background-image: linear-gradient(to right, #3d3f43 0%, #3d3f43 100%);
+}
+
+/* Chat input background surface */
+.chat-input-surface {
+  background-image: linear-gradient(to right, #242628 0%, #242628 100%);
+}
+
+/* Primary action button inside chat input */
+.btn-chat-primary {
+  background-image: linear-gradient(to right, #242628 0%, #242628 100%);
+  color: #ffffff;
+  border-color: transparent;
+}
+.btn-chat-primary:hover {
+  background-image: linear-gradient(to right, #2b2d30 0%, #2b2d30 100%);
+}
+
+/* Create page form surface */
+.create-form-surface {
+  background-image: linear-gradient(to right, #141719 0%, #141719 100%);
+}

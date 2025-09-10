@@ -2,26 +2,26 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useSession, useDescope } from '@descope/react-sdk'
+// import { usePathname } from 'next/navigation'
+import { useSession, useDescope, useUser } from '@descope/react-sdk'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { Zap, Plus, LogOut, MessageCircle, Crown, Store } from 'lucide-react'
 
 export default function Navbar() {
-  const { isAuthenticated, user } = useSession()
+  const { isAuthenticated } = useSession()
+  const { user } = useUser()
   const { logout } = useDescope()
-  const pathname = usePathname()
+  // const pathname = usePathname()
 
   const handleSignOut = () => {
     logout()
   }
 
-  const isActive = (path) => pathname === path
 
   return (
-    <header className="w-full border-b border-white/10 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+    <header className="w-full border-b border-white/10 bg-fleet-gradient sticky top-0 z-50">
       <div className="w-full px-4 py-4">
         <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
           {/* Left side - Logo and Title */}
@@ -38,74 +38,48 @@ export default function Navbar() {
           <nav className="flex items-center space-x-2">
             {isAuthenticated && (
               <>
-                {pathname !== '/chat' && (
-                  <Link
-                    href="/chat"
-                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
-                      isActive('/chat')
-                        ? 'text-primary border-primary bg-primary/10'
-                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
-                    }`}
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Chat
-                  </Link>
-                )}
-
-                {pathname !== '/create' && (
-                  <Link
-                    href="/create"
-                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
-                      isActive('/create')
-                        ? 'text-primary border-primary bg-primary/10'
-                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
-                    }`}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create MCP
-                  </Link>
-                )}
-
-                {pathname !== '/marketplace' && (
-                  <Link
-                    href="/marketplace"
-                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
-                      isActive('/marketplace')
-                        ? 'text-primary border-primary bg-primary/10'
-                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
-                    }`}
-                  >
-                    <Store className="mr-2 h-4 w-4" />
-                    Marketplace
-                  </Link>
-                )}
-
-                {pathname !== '/membership' && (
-                  <Link
-                    href="/membership"
-                    className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors border ${
-                      isActive('/membership')
-                        ? 'text-primary border-primary bg-primary/10'
-                        : 'text-foreground hover:text-primary border-transparent hover:border-gray-600'
-                    }`}
-                  >
-                    <Crown className="mr-2 h-4 w-4" />
-                    Membership
-                  </Link>
-                )}
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="rounded-full p-0 w-8 h-8">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={user?.picture} alt={user?.name || "User"} />
-                        <AvatarFallback>
-                          {user?.name?.[0] || "U"}
-                        </AvatarFallback>
-                      </Avatar>
+                    <Button variant="ghost" className="rounded-full px-2 h-8">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={user?.picture} alt={user?.name || "User"} />
+                          <AvatarFallback>
+                            {user?.name?.[0] || user?.userId?.[0] || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="max-w-[140px] truncate text-sm">
+                          {user?.name || user?.userId || 'User'}
+                        </span>
+                      </div>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Link href="/chat" className="flex items-center w-full">
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Chat
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Link href="/create" className="flex items-center w-full">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create MCP
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Link href="/marketplace" className="flex items-center w-full">
+                        <Store className="mr-2 h-4 w-4" />
+                        Marketplace
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Link href="/membership" className="flex items-center w-full">
+                        <Crown className="mr-2 h-4 w-4" />
+                        Membership
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
                       Sign Out

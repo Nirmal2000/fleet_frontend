@@ -29,7 +29,7 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+    <div className="min-h-screen bg-fleet-gradient">
       <Navbar />
 
       <CreateMCPForm />
@@ -170,7 +170,7 @@ function CreateMCPForm() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <Card className="max-w-3xl mx-auto">
+      <Card className="max-w-3xl mx-auto create-form-surface border-white/10 border-[0px]">
         <CardHeader>
           <CardTitle>Create MCP</CardTitle>
         </CardHeader>
@@ -190,7 +190,7 @@ function CreateMCPForm() {
               <FormLabel>
                 Startup Commands
               </FormLabel>
-              <Button type="button" variant="outline" size="sm" onClick={addStartupCmd}>
+              <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={addStartupCmd}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Command
               </Button>
@@ -205,7 +205,7 @@ function CreateMCPForm() {
                   className="font-mono"
                 />
                 {startupCommands.length > 1 && (
-                  <Button type="button" variant="outline" size="sm" onClick={() => removeStartupCmd(index)}>
+                  <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={() => removeStartupCmd(index)}>
                     <X className="h-4 w-4" />
                   </Button>
                 )}
@@ -218,7 +218,7 @@ function CreateMCPForm() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <FormLabel>Environment Variables</FormLabel>
-              <Button type="button" variant="outline" size="sm" onClick={addEnvVar}>
+              <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={addEnvVar}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Variable
               </Button>
@@ -254,6 +254,7 @@ function CreateMCPForm() {
                     type="button"
                     variant="outline"
                     size="sm"
+                    className="fleet-surface text-white border-transparent"
                     onClick={() => removeEnvVar(index)}
                   >
                     <X className="h-4 w-4" />
@@ -276,7 +277,7 @@ function CreateMCPForm() {
               />
               <div className="flex items-center justify-between">
                 <FormLabel>Args</FormLabel>
-                <Button type="button" variant="outline" size="sm" onClick={addMcpArg}>
+                <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={addMcpArg}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Arg
                 </Button>
@@ -291,7 +292,7 @@ function CreateMCPForm() {
                     className="font-mono"
                   />
                   {mcpArgs.length > 1 && (
-                    <Button type="button" variant="outline" size="sm" onClick={() => removeMcpArg(index)}>
+                    <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={() => removeMcpArg(index)}>
                       <X className="h-4 w-4" />
                     </Button>
                   )}
@@ -304,7 +305,7 @@ function CreateMCPForm() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <FormLabel>MCP Environment Variables (names + optional values)</FormLabel>
-              <Button type="button" variant="outline" size="sm" onClick={addMcpEnv}>
+              <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={addMcpEnv}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add MCP Env
               </Button>
@@ -327,7 +328,7 @@ function CreateMCPForm() {
                   {maskValue(env.value)}
                 </span>
                 {mcpEnvs.length > 1 && (
-                  <Button type="button" variant="outline" size="sm" onClick={() => removeMcpEnv(index)}>
+                  <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={() => removeMcpEnv(index)}>
                     <X className="h-4 w-4" />
                   </Button>
                 )}
@@ -358,6 +359,7 @@ function CreateMCPForm() {
             <Button
               type="button"
               variant="default"
+            //   className="fleet-surface text-white border-transparent"
               onClick={handleSave}
             >
               Save

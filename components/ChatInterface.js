@@ -136,7 +136,7 @@ export default function ChatInterface() {
       />
 
       {/* Main content area */}
-      <SidebarInset>
+      <SidebarInset className="bg-fleet-gradient">
         <div className="flex h-svh flex-col overflow-hidden">
           <ChatHeader user={user} onSignOut={handleSignOut} />
           <div className="flex-1 flex flex-col overflow-hidden">

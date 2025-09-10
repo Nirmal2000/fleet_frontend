@@ -101,13 +101,13 @@ export function ChatInput({
   }
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 mb-4 md:mb-6 mx-auto w-full max-w-3xl px-3 md:px-5">
       <PromptInput
         isLoading={loading}
         value={inputMessage}
         onValueChange={setInputMessage}
         onSubmit={onSendMessage}
-        className="border-input bg-popover relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
+        className="border-input chat-input-surface relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
         disabled={!sandboxCreated}
       >
         <div className="flex flex-col">
@@ -118,7 +118,7 @@ export function ChatInput({
 
           <PromptInputActions className="mt-5 flex w-full items-center justify-between gap-2 px-3 pb-3">
             <div className="flex items-center gap-2">
-              <PromptInputAction tooltip="Add a new action">
+              {/* <PromptInputAction tooltip="Add a new action">
                 <Button
                   variant="outline"
                   size="icon"
@@ -126,14 +126,14 @@ export function ChatInput({
                 >
                   <Plus size={18} />
                 </Button>
-              </PromptInputAction>
+              </PromptInputAction> */}
 
               <PromptInputAction tooltip="Add MCP to this chat">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="rounded-full"
+                      className="rounded-full btn-chat-primary"
                       disabled={!sandboxCreated}
                     >
                       <SquareAsterisk size={18} className="mr-2" />
@@ -163,7 +163,7 @@ export function ChatInput({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="rounded-full"
+                      className="rounded-full btn-chat-primary"
                       disabled={!sandboxCreated}
                     >
                       <SquareAsterisk size={18} className="mr-2" />
@@ -202,14 +202,14 @@ export function ChatInput({
                 </DropdownMenu>
               </PromptInputAction>
 
-              <PromptInputAction tooltip="Search">
+              {/* <PromptInputAction tooltip="Search">
                 <Button variant="outline" className="rounded-full">
                   <Globe size={18} />
                   Search
                 </Button>
-              </PromptInputAction>
+              </PromptInputAction> */}
 
-              <PromptInputAction tooltip="More actions">
+              {/* <PromptInputAction tooltip="More actions">
                 <Button
                   variant="outline"
                   size="icon"
@@ -217,18 +217,9 @@ export function ChatInput({
                 >
                   <MoreHorizontal size={18} />
                 </Button>
-              </PromptInputAction>
+              </PromptInputAction> */}
             </div>
-            <div className="flex items-center gap-2">
-              <PromptInputAction tooltip="Voice input">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="size-9 rounded-full"
-                >
-                  <Mic size={18} />
-                </Button>
-              </PromptInputAction>
+            <div className="flex items-center gap-2">              
 
               <Button
                 size="icon"

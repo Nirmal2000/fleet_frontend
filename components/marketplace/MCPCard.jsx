@@ -15,7 +15,7 @@ function getStatusBadge(status) {
 
 export default function MCPCard({ mcp, onClick }) {
   const tools = mcp.tools || []
-  const displayedTools = tools.slice(0, 3)
+  const displayedTools = tools.slice(0, 10)
 
   const copyConfig = async (e) => {
     e?.stopPropagation?.()
@@ -73,7 +73,7 @@ export default function MCPCard({ mcp, onClick }) {
 
       <CardFooter className="flex-col space-y-2 pt-0">        
         <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
-          {mcp.created_at ? <span>Created {new Date(mcp.created_at).toLocaleDateString()}</span> : <span />}
+          {/* {mcp.created_at ? <span>Created {new Date(mcp.created_at).toLocaleDateString()}</span> : <span />} */}
           {mcp.pricing > 0 && (
             <div className="flex items-center">
               <DollarSign className="h-3 w-3 mr-1" />

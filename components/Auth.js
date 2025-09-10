@@ -48,13 +48,13 @@ export default function Auth() {
             {/* Main Authentication Interface */}
             <div className="max-w-md mx-auto">
               <Card className="border border-white/10 shadow-2xl bg-white/5 backdrop-blur-lg">
-                <CardHeader className="text-center pb-6">
-                  <CardTitle className="text-2xl mb-3 text-white">Get Started</CardTitle>
+                <CardHeader className="text-center ">
+                  <CardTitle className="text-2xl  text-white">Get Started</CardTitle>
                   <CardDescription className="text-slate-300">
                     Sign in to access the platform
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pb-6">
+                <CardContent className="">
                   <Descope
                     flowId="sign-up-or-in"
                     onSuccess={onSuccess}

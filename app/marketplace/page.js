@@ -96,7 +96,7 @@ export default function MarketplacePage() {
             env: envVars,
             metadata: { visibility }
           },
-          created_at: t.created_at
+          // created_at: t.created_at
         }
       })
   }, [tasks])
@@ -149,16 +149,16 @@ export default function MarketplacePage() {
   const isOwned = (m) => !!(m?.user_id && userId && m.user_id === userId)
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-fleet-gradient">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">MCP Marketplace</h1>
           <p className="text-muted-foreground">Discover and integrate Modular Compute Protocol tools into your applications</p>
         </div>
 
-        <div className="mb-8">
-          <div className="relative max-w-md">
+        <div className="mb-8 flex justify-center">
+          <div className="relative max-w-md w-full mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search MCPs, tools, or descriptions..."
@@ -170,14 +170,14 @@ export default function MarketplacePage() {
         </div>
 
         {!isLoading && (
-          <div className="mb-6">
-            <p className="text-sm text-muted-foreground">
+          <div className="mb-6 text-center">
+            {/* <p className="text-sm text-muted-foreground">
               {searchQuery ? (
                 <>Found {publicMcps.length + privateMcps.length + runningMcps.length} MCP{(publicMcps.length + privateMcps.length + runningMcps.length) !== 1 ? 's' : ''} for {searchQuery}</>
               ) : (
                 <>{dbItems.length} MCP{dbItems.length !== 1 ? 's' : ''} available</>
               )}
-            </p>
+            </p> */}
           </div>
         )}
 
@@ -187,7 +187,7 @@ export default function MarketplacePage() {
           <div className="space-y-10">
             {runningMcps.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold mb-4">Running</h2>
+                <h2 className="text-xl font-semibold mb-4 ">Running</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {runningMcps.map((m) => <MCPCard key={m.id} mcp={m} onClick={() => openDetails(m)} />)}
                 </div>
@@ -195,7 +195,7 @@ export default function MarketplacePage() {
             )}
 
             <section>
-              <h2 className="text-xl font-semibold mb-4">Public MCPs</h2>
+              <h2 className="text-xl font-semibold mb-4 ">Public MCPs</h2>
               {publicMcps.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {publicMcps.map((m) => <MCPCard key={m.id} mcp={m} onClick={() => openDetails(m)} />)}
@@ -207,7 +207,7 @@ export default function MarketplacePage() {
 
             {ownedMcps.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold mb-4">Owned MCPs</h2>
+                <h2 className="text-xl font-semibold mb-4 ">Owned MCPs</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {ownedMcps.map((m) => <MCPCard key={m.id} mcp={m} onClick={() => openDetails(m)} />)}
                 </div>
