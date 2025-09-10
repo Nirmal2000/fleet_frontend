@@ -113,7 +113,7 @@ export function ChatInput({
   }
 
   return (
-    <div className="mt-4 mb-4 md:mb-6 mx-auto w-full max-w-3xl px-3 md:px-5">
+    <div className="mt-4 mb-4 md:mb-6 mx-auto w-full max-w-4xl px-3 md:px-5">
       <PromptInput
         isLoading={loading}
         value={inputMessage}

@@ -19,7 +19,7 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
     <ChatContainerRoot className="flex-1 min-h-0 relative">
       <ChatContainerContent className="space-y-4 px-5 py-12">
         {messages.map((message, index) => (
-          <div key={index} className="mx-auto w-full max-w-3xl px-6">
+          <div key={index} className="mx-auto w-full max-w-4xl px-6">
             <Message
               className={message.role === 'user' ? 'justify-end' : 'justify-start'}
             >
@@ -79,7 +79,7 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
           </div>
         ))}
         {loading && (
-          <div className="mx-auto w-full max-w-3xl px-6">
+          <div className="mx-auto w-full max-w-4xl px-6">
             <Message className="justify-start">
               <MessageContent className="bg-transparent text-foreground rounded-none p-0 shadow-none dark:prose-invert">
                 <div className="text-sm">Thinking...</div>
@@ -89,7 +89,7 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
         )}
         <div ref={messagesEndRef} />
       </ChatContainerContent>
-      <div className="absolute bottom-4 left-1/2 flex w-full max-w-3xl -translate-x-1/2 justify-end px-5">
+      <div className="absolute bottom-4 left-1/2 flex w-full max-w-4xl -translate-x-1/2 justify-end px-5">
         <ScrollButton className="shadow-sm" />
       </div>
     </ChatContainerRoot>

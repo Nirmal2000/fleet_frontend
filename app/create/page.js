@@ -96,8 +96,12 @@ function CreateMCPForm() {
     if (!node) return null
     const cmd = typeof node.command === 'string' ? node.command : ''
     const args = Array.isArray(node.args) ? node.args.filter(a => typeof a === 'string') : []
-    if (!cmd && args.length === 0) return null
-    return { command: cmd, args }
+    const env = (node.env && typeof node.env === 'object') ?
+      Object.entries(node.env).map(([k, v]) => ({ key: k, value: String(v) || '' })) :
+      (obj.env && typeof obj.env === 'object') ?
+      Object.entries(obj.env).map(([k, v]) => ({ key: k, value: String(v) || '' })) : []
+    if (!cmd && args.length === 0 && env.length === 0) return null
+    return { command: cmd, args, env }
   }
 
   const handleMcpPaste = (e) => {
@@ -108,6 +112,7 @@ function CreateMCPForm() {
       e.preventDefault()
       if (extracted.command) setMcpCommand(extracted.command)
       setMcpArgs(extracted.args.length ? extracted.args : [''])
+      if (extracted.env && extracted.env.length) setMcpEnvs(extracted.env)
     }
   }
 
@@ -239,16 +244,11 @@ function CreateMCPForm() {
                   onPaste={handleEnvVarPaste}
                 />
                 <Input
-                  type="password"
-                  autoComplete="new-password"
                   placeholder="VALUE"
-                  value={env.value}
+                  value={maskValue(env.value)}
                   onChange={(e) => updateEnvVar(index, 'value', e.target.value)}
                   onPaste={handleEnvVarPaste}
                 />
-                <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[160px]">
-                  {maskValue(env.value)}
-                </span>
                 {envVars.length > 1 && (
                   <Button
                     type="button"
@@ -318,15 +318,10 @@ function CreateMCPForm() {
                   onChange={(e) => updateMcpEnv(index, 'key', e.target.value)}
                 />
                 <Input
-                  type="password"
-                  autoComplete="new-password"
                   placeholder="value (optional)"
-                  value={env.value}
+                  value={maskValue(env.value)}
                   onChange={(e) => updateMcpEnv(index, 'value', e.target.value)}
                 />
-                <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[160px]">
-                  {maskValue(env.value)}
-                </span>
                 {mcpEnvs.length > 1 && (
                   <Button type="button" variant="outline" size="sm" className="fleet-surface text-white border-transparent" onClick={() => removeMcpEnv(index)}>
                     <X className="h-4 w-4" />
