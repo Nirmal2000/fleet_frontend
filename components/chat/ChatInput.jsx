@@ -67,15 +67,17 @@ export function ChatInput({
       // Initiate Descope outbound OAuth flow; tokens are stored server-side by Descope.
       // Assumption: app.id is the outbound app ID and app.name is display name.
       const token = getSessionToken()
+      console.log('Connecting outbound app', app.id, "gmail", { token: token })
       const resp = await outbound.connect(
-        app.id,
+        "gmail",
         {
           // Must be camelCase: redirectUrl
           redirectUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         },
-        token || undefined
+        token
       )
       const url = (resp && (resp.data?.url || resp.url)) || null
+      console.log('Outbound connect response', resp, url)
       if (url) {
         window.location.assign(url)
         return
@@ -200,7 +202,7 @@ export function ChatInput({
             })
             const data = await res.json().catch(() => ({}))
             if (!res.ok || !data?.success) {
-              // await connectMcpInbound(m)
+              await connectMcpInbound(m)
             }
           } catch (e) {
             await connectMcpInbound(m)

@@ -11,8 +11,8 @@ function EnvRow({ name, onSave, showDivider }) {
   const [val, setVal] = useState("")
   return (
     <div className="py-2">
-      <div className="flex items-center gap-2">
-        <div className="text-xs text-muted-foreground w-40 truncate">{name}</div>
+      <div className="flex items-center gap-1">
+        <div className="text-xs text-muted-foreground w-32 truncate">{name}</div>
         <input
           type="password"
           className="flex-1 bg-transparent border border-[#1b1d1f] rounded px-2 py-1 text-sm"
@@ -54,7 +54,7 @@ export default function AddToolsCard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 border chat-border bg-[#1a1c1e] border-[#1b1d1f] rounded-xl max-w-sm h-[480px]">
+      <DialogContent className="p-0 border chat-border bg-[#1a1c1e] border-[#1b1d1f] rounded-xl max-w-md h-[480px]">
         <DialogHeader className="px-3 pt-3 pb-0">
           <DialogTitle className="text-sm text-white">Add tools</DialogTitle>
         </DialogHeader>
