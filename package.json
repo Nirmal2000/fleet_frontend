@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@descope/react-sdk": "^2.19.2",
+    "@descope/react-sdk": "^2.19.3",
     "@hookform/resolvers": "^5.2.1",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@radix-ui/react-avatar": "^1.1.10",

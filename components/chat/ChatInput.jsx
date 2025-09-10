@@ -14,8 +14,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import MCPDetailsDialog from '@/components/marketplace/MCPDetailsDialog'
 import { useMcps } from '@/hooks/useMcps'
+import { useOutboundApps } from '@/hooks/useOutboundApps'
 import { useDescope, useUser } from '@descope/react-sdk'
 import { useMemo, useState } from 'react'
+import { Switch } from '@/components/ui/switch'
 
 export function ChatInput({
   inputMessage,
@@ -25,8 +27,9 @@ export function ChatInput({
   onSendMessage,
   chatId,
 }) {
-  const { mcps } = useMcps()
-  const { getSessionToken } = useDescope()
+  const { mcps } = useMcps()  
+  const { getSessionToken, outbound } = useDescope()  
+  const { integrations, refetch: refetchIntegrations } = useOutboundApps(getSessionToken)
   const { user } = useUser()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedMcp, setSelectedMcp] = useState(null)
@@ -44,6 +47,57 @@ export function ChatInput({
   const openMcpDetails = (m) => {
     setSelectedMcp(m)
     setDialogOpen(true)
+  }
+
+  const handleConnectIntegration = async (app) => {
+    if (!app?.id) return
+    try {
+      // Initiate Descope outbound OAuth flow; tokens are stored server-side by Descope.
+      // Assumption: app.id is the outbound app ID and app.name is display name.
+      const token = await getSessionToken()?.catch?.(() => null)
+      const resp = await outbound.connect(
+        app.id,
+        {
+          // Must be camelCase: redirectUrl
+          redirectUrl: typeof window !== 'undefined' ? window.location.href : undefined,
+        },
+        token || undefined
+      )
+      const url = (resp && (resp.data?.url || resp.url)) || null
+      if (url) {
+        window.location.assign(url)
+        return
+      }
+      // Fallback: refresh connection status if no redirect happened
+      try { await refetchIntegrations?.() } catch (_) {}
+    } catch (error) {
+      console.error('Error connecting to outbound app', app?.id, error)
+    }
+  }
+
+  const handleToggleIntegration = async (app, enabled) => {
+    try {
+      const token = getSessionToken()
+      console.log(token)
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      }
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/chat/${encodeURIComponent(chatId)}/integrations/gmail/toggle`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ enabled: !!enabled, app_id: app?.id || app?.raw?.id, tenant_id: undefined }),
+        }
+      )
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        console.warn('Failed to toggle Gmail integration', res.status, body)
+      }
+    } catch (e) {
+      console.warn('Error toggling Gmail integration', e)
+    }
   }
 
   return (
@@ -97,6 +151,50 @@ export function ChatInput({
                           onClick={() => openMcpDetails(m)}
                         >
                           {m.title || m.name}
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PromptInputAction>
+
+              <PromptInputAction tooltip="Add Integration to this chat">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="rounded-full"
+                      disabled={!sandboxCreated}
+                    >
+                      <SquareAsterisk size={18} className="mr-2" />
+                      Add Integration
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-72 max-h-80">
+                    {(integrations || []).length === 0 ? (
+                      <DropdownMenuItem disabled>No integrations found</DropdownMenuItem>
+                    ) : (
+                      (integrations || []).map((it) => (
+                        <DropdownMenuItem
+                          key={it.id || it.name}
+                          className="cursor-pointer group flex items-center"
+                          onSelect={(e) => { e.preventDefault(); if (!it.connected) handleConnectIntegration(it) }}
+                        >
+                          <span className="truncate">{it.name}</span>
+                          <span className="ml-auto flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {!it.connected && (
+                              <button
+                                className="text-xs text-primary underline"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleConnectIntegration(it) }}
+                              >
+                                Connect
+                              </button>
+                            )}
+                            <Switch
+                              disabled={!it.connected || !sandboxCreated}
+                              onCheckedChange={(checked) => handleToggleIntegration(it, checked)}
+                            />
+                          </span>
                         </DropdownMenuItem>
                       ))
                     )}
