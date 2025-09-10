@@ -107,23 +107,40 @@ export function useChat(chatId, deviceId) {
               })
             }
 
-            // Handle tool messages
+            // Handle assistant message with tool_calls (OR format)
+            if (data.type === 'assistant_message' && data.message) {
+              // Only render assistant content; ignore tool_calls in UI
+              const assistant = { role: 'assistant', content: data.message.content || '' }
+              setMessages(prev => {
+                const newMessages = [...prev]
+                const last = newMessages[newMessages.length - 1]
+                if (last && last.role === 'assistant') {
+                  newMessages[newMessages.length - 1] = assistant
+                } else {
+                  newMessages.push(assistant)
+                }
+                return newMessages
+              })
+            }
+
+            // Handle tool messages (always render with <Tool> component)
             if (data.type === 'tool') {
-              // Reset assistant message when tool starts
-              assistantMessage = ''
-              
+              // Reset assistant accumulation when a tool starts
+              if (data.state === 'input-streaming') {
+                assistantMessage = ''
+              }
+
               setMessages(prev => {
                 const newMessages = [...prev]
                 const lastMessage = newMessages[newMessages.length - 1]
-                
+
                 // If last message is a tool message with same tool_name, update it
                 if (lastMessage && lastMessage.role === 'tool' && lastMessage.tool_name === data.tool_name) {
-                  // Update the existing tool message
                   lastMessage.state = data.state
-                  if (data.input) lastMessage.input = { ...lastMessage.input, ...data.input }
+                  if (data.input) lastMessage.input = { ...(lastMessage.input || {}), ...data.input }
                   if (data.output) lastMessage.output = data.output
                 } else {
-                  // Create new tool message
+                  // Create/append a streaming tool message for <Tool>
                   newMessages.push({
                     role: 'tool',
                     tool_name: data.tool_name,
@@ -132,7 +149,6 @@ export function useChat(chatId, deviceId) {
                     output: data.output || null
                   })
                 }
-                
                 return newMessages
               })
             }

@@ -15,6 +15,11 @@ export default function MCPDetailsDialog({
   onSaved,
   chatId,
 }) {
+  function maskValue(val, visible = 4) {
+    const s = String(val || '')
+    if (s.length <= visible) return s
+    return s.slice(0, visible) + '*'.repeat(s.length - visible)
+  }
   const [clientEnv, setClientEnv] = useState({})
   const [generalEnv, setGeneralEnv] = useState({})
   const [saving, setSaving] = useState(false)
@@ -237,11 +242,16 @@ export default function MCPDetailsDialog({
                     <div key={k} className="flex items-center gap-2">
                       <span className="text-xs w-48 truncate">{k}</span>
                       <Input
+                        type="password"
+                        autoComplete="new-password"
                         value={clientEnv?.[k] ?? ''}
                         onChange={(e) => setClientEnv(prev => ({ ...(prev || {}), [k]: e.target.value }))}
                         placeholder="value"
                         className="flex-1"
                       />
+                      <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[160px]">
+                        {maskValue(clientEnv?.[k] ?? '')}
+                      </span>
                     </div>
                   ))}
                   {(!mcp?.config?.mcp_env_names || mcp?.config?.mcp_env_names.length === 0) && (
@@ -258,11 +268,16 @@ export default function MCPDetailsDialog({
                       <div key={k} className="flex items-center gap-2">
                         <span className="text-xs w-48 truncate">{k}</span>
                         <Input
+                          type="password"
+                          autoComplete="new-password"
                           value={generalEnv?.[k] ?? ''}
                           onChange={(e) => setGeneralEnv(prev => ({ ...(prev || {}), [k]: e.target.value }))}
                           placeholder="value"
                           className="flex-1"
                         />
+                        <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[160px]">
+                          {maskValue(generalEnv?.[k] ?? '')}
+                        </span>
                       </div>
                     ))}
                     {(!mcp?.config?.metadata?.general_env_names || mcp?.config?.metadata?.general_env_names.length === 0) && (

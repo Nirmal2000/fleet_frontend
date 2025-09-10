@@ -25,41 +25,26 @@ export function ChatMessages({ messages, loading, isProcessing, messagesEndRef }
           >
             {message.role === 'tool' ? (
               <div className="max-w-[85%] space-y-2">
-                <Tool
-                  toolPart={{
-                    type: message.tool_name,
-                    state: message.state,
-                    input: message.input,
-                    output: message.output
-                  }}
-                />
-                {message.tool_name === 'create_download_link' &&
-                 message.state === 'output-available' &&
-                 message.output?.result &&
-                 message.output.result.startsWith('http') && (
-                  <div>
-                    <img
-                      src={message.output.result}
-                      alt="Generated content"
-                      className="max-w-full h-auto rounded-lg border"
-                    />
-                  </div>
-                )}
-                {message.tool_name === 'get_live_url' &&
-                 message.state === 'output-available' &&
-                 message.output?.result &&
-                 message.output.result.startsWith('http') && (
-                  <div className="mt-2">
-                    <a
-                      href={message.output.result}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
-                    >
-                      Live Browser
-                    </a>
-                  </div>
-                )}
+                {/* Support both streaming shape (tool_name/state/input/output) and persisted OR shape (name/content) */}
+                {(() => {
+                  const isStreaming = !!message.tool_name
+                  const toolPart = isStreaming
+                    ? {
+                        type: message.tool_name,
+                        state: message.state,
+                        input: message.input,
+                        output: message.output,
+                      }
+                    : {
+                        type: message.name || 'tool',
+                        state: 'output-available',
+                        input: {},
+                        output: message.content
+                          ? { result: message.content }
+                          : null,
+                      }
+                  return <Tool toolPart={toolPart} />
+                })()}
               </div>
             ) : (
               <>
