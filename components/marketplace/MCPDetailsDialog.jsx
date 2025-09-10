@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { beginInboundLogin } from '@/lib/inboundAuth'
 
 export default function MCPDetailsDialog({
   open,
@@ -156,17 +157,35 @@ export default function MCPDetailsDialog({
     if (!mcp?.id || !chatId) return
     try {
       setToggling(true)
-      const token = await getSessionToken?.()
+      const token = getSessionToken?.()
       const res = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/chat/${chatId}/toggle-mcp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
+        credentials: 'include', // include inbound cookie if present
         body: JSON.stringify({ mcp_id: mcp.id, enabled: true })
       })
-      const data = await res.json()
-      if (!data?.success) throw new Error(data?.message || 'Failed to enable MCP')
+      const data = await res.json().catch(() => ({}))
+      console.log('Toggle MCP response', res.status, data)
+      if (!res.ok || !data?.success) {
+        // If backend indicates inbound auth is required, start the flow
+        if (data?.inbound_required) {
+          try {
+            // Fetch per-MCP inbound clientId
+            const cfgRes = await fetch(`${process.env.NEXT_PUBLIC_ORCHESTRATOR_URL}/mcps/${mcp.id}/inbound-config`)            
+            const cfg = await cfgRes.json().catch(() => ({}))
+            console.log('Inbound config response', cfg)
+            const clientId = cfg?.clientId
+            await beginInboundLogin({ mcpId: mcp.id, chatId, clientId, scopes: [] })
+          } catch {
+            await beginInboundLogin({ mcpId: mcp.id, chatId, scopes: [] })
+          }
+          return
+        }
+        throw new Error(data?.message || `Failed to enable MCP (${res.status})`)
+      }
       onSaved?.()
       onOpenChange?.(false)
     } catch (e) {
